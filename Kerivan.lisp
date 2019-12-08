@@ -237,7 +237,8 @@ Returns NIL (false) otherwise."
     (and (not (string= sibling name))
          (and (person-parent1 s) (person-parent1 p))
          (intersection (list (person-parent1 s) (person-parent2 s)) 
-                       (list (person-parent1 p) (person-parent2 p))))))
+                       (list (person-parent1 p) (person-parent2 p))
+                       :test #'equal))))
 
 
 ;;; Gets all siblings of 'name'.
@@ -300,8 +301,10 @@ Returns NIL (false) otherwise."
   "NAMES is a LIST of strings. TREE is a hash-table."
   (LET ()
     (cond ((eql (list-length names) 2)
-           (add-person tree (nth 0 names))
-           (add-person tree (nth 1 names)))
+           (when (not (person-exists (nth 0 names) tree))
+             (add-person tree (nth 0 names)))
+           (when (not (person-exists (nth 1 names) tree))
+             (add-person tree (nth 1 names))))
           ((eql (list-length names) 3)
            (add-person tree (nth 2 names) (list (nth 0 names) (nth 1 names))))
           (t (error "HANDLE-E must be called with two or three parameters")))
