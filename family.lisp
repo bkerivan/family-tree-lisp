@@ -448,7 +448,10 @@ each line from the file opened in STREAM."
                  (format t "~A~%" line)
                  (setq result (handle-W (rest tokens) tree))
                  (if result
-                     (format t "~A~%~%" result)
+                     (progn
+                       (loop for name in result
+                           do (format t "~A~%" name))
+                       (terpri))
                    (format t "None~%~%")))
                 ((string= (first tokens) "X")
                  (format t "~A~%" line)
@@ -457,6 +460,8 @@ each line from the file opened in STREAM."
                      (format t "Yes~%~%")
                    (format t "No~%~%")))
                 (t (error "FAMILY: Invalid query type: ~A~%" (first tokens)))))
+
+    (format t "End of File.~%")
   )
 )
 
