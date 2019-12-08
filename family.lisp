@@ -1,5 +1,5 @@
 ;;;; -*- Mode: Lisp; -*- 
-;;;; Team Members: <PUT YOUR NAMES HERE>
+;;;; Team Members: Brendan Kerivan and Dymon Moore     
 ;;;;
 ;;;;
 ;;;; Submission Deadline: Sunday, December 8, 11:59:59pm
@@ -434,15 +434,14 @@ Returns NIL (false) otherwise."
 each line from the file opened in STREAM."
   (LET ((tree (MAKE-HASH-TABLE :size 1000 :test #'equal))
         (line-items (SPLIT-SEQUENCE " " (READ-LINE stream nil "") :test #'equal)))
-  (LOOP
-    (CASE (FIRST line-items)
-      ("E" (handle-E (REST line-items) tree))
-      ("W" (handle-W (REST line-items) tree))
-      ("X" (handle-X (REST line-items) tree))
-      (t (RETURN nil))) ; end of file reached
-    (SETF line-items (SPLIT-SEQUENCE " " (READ-LINE stream nil "") :test #'equal)))
-  )
-)
+    (LOOP
+      (COND
+         ((STRING= (FIRST line-items) "E") (handle-E (REST line-items) tree))
+         ((STRING= (FIRST line-items) "W") (handle-W (REST line-items) tree))
+         ((STRING= (FIRST line-items) "X") (handle-X (REST line-items) tree))
+         (t (RETURN nil))) ; end of file reached
+      (SETF line-items (SPLIT-SEQUENCE " " (READ-LINE stream nil "") :test #'equal)))
+))
 
 
 ;;How Dr. Klassner and Jenish will test your code in the Listener:
