@@ -1,5 +1,5 @@
 ;;;; -*- Mode: Lisp; -*- 
-;;;; Team Members: <PUT YOUR NAMES HERE>
+;;;; Team Members: Brendan Kerivan, Dymon Moore, Michael Norse
 ;;;;
 ;;;;
 ;;;; Submission Deadline: Sunday, December 8, 11:59:59pm
