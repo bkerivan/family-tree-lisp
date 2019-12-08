@@ -1,0 +1,25 @@
+X Amelia ancestor Annie
+Yes
+
+X Annie ancestor Amelia
+No
+
+W ancestor Donald
+David
+Derrick
+Doris
+Drusilla
+
+W ancestor Claude
+Carl
+Carter
+Charlene
+Chrissy
+Christopher
+David
+Denise
+Derrick
+Doris
+Drusilla
+
+End of File.

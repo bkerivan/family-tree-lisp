@@ -1,0 +1,18 @@
+W ancestor Aaron
+Caleb
+Denise
+Ethel
+Fred
+Jerome
+Pauline
+
+X Pauline child Pauline
+No
+
+W child Jerome
+Aaron
+
+X Caleb unrelated Denise
+Yes
+
+End of File.

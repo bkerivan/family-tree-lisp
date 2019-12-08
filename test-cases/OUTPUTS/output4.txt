@@ -1,0 +1,15 @@
+W sibling Donald
+Daniel
+Denise
+
+W sibling Kelly
+Fergie
+Maria
+
+X Daniel sibling Sushil
+No
+
+X Kelly sibling Fergie
+Yes
+
+End of File.

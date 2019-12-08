@@ -1,0 +1,16 @@
+W child John
+Bill
+Fred
+Pete
+Rebecca
+
+X Bill child John
+Yes
+
+X John child Bill
+No
+
+X Rebecca child Bill
+No
+
+End of File.

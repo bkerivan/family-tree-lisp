@@ -1,0 +1,10 @@
+E John Mary Bill
+E John Mary Pete
+E John Mary Fred
+E John Jean Rebecca
+E Rebecca Bill Andrew
+E Pete Carol Jim
+W child John
+X Bill child John
+X John child Bill
+X Rebecca child Bill

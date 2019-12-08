@@ -308,16 +308,16 @@ Returns NIL (false) otherwise."
   ))
 
 
-(DEFUN handle-X (tokens tree)
-  "TOKENS is a LIST of strings. TREE is a hash-table."
-  (LET ((relation (nth 1 tokens))
-        (name1 (nth 0 tokens))
+(DEFUN handle-X (names tree)
+  "NAMES is a LIST of strings. TREE is a hash-table."
+  (LET ((relation (nth 1 names))
+        (name1 (nth 0 names))
         (name2 nil)
         (degree -1)
-        (result nil))
+        (query nil))
 
-    (cond ((eql (list-length tokens) 3) (setq name2 (nth 2 tokens)))
-          ((eql (list-length tokens) 4) (setq name2 (nth 3 tokens) degree (parse-integer (nth 2 tokens))))
+    (cond ((eql (list-length names) 3) (setq name2 (nth 2 names)))
+          ((eql (list-length names) 4) (setq name2 (nth 3 names) degree (parse-integer (nth 2 names))))
           (t (error "HANDLE-X must be called with three or four parameters")))
 
     (when (not (person-exists name1 tree))
@@ -326,44 +326,48 @@ Returns NIL (false) otherwise."
     (when (not (person-exists name2 tree))
       (error "HANDLE-X: ~A does not exist in the tree" name2))
 
-    ;;; case... strings...
-    (cond ((string= relation "ancestor") (setq result (is-ancestor name1 name2 tree)))
-          ((string= relation "unrelated") (setq result (is-unrelated name1 name2 tree)))
-          ((string= relation "child") (setq result (is-child name1 name2 tree)))
-          ((string= relation "sibling") (setq result (is-sibling name1 name2 tree)))
-          ((string= relation "cousin") (setq result (is-cousin name1 name2 tree degree)))
-          (t (error "HANDLE-X: Invalid relation: ~A~%" relation)))
+    (case relation
+      ("ancestor" (setq query (is-ancestor name1 name2 tree)))
+      ("unrelated" (setq query (is-unrelated name1 name2 tree)))
+      ("child" (setq query (is-child name1 name2 tree)))
+      ("sibling" (setq query (is-sibling name1 name2 tree)))
+      ("cousin" (setq query (is-cousin name1 name2 tree degree)))
+      (otherwise (error "HANDLE-X: Invalid relation: ~A" relation)))
 
-    result
+    (print query)
+
+    query
     ))
 
 
-(DEFUN handle-W (tokens tree)
-  "TOKENS is a LIST of strings. TREE is a hash-table."
-  (LET ((relation (nth 0 tokens))
+(DEFUN handle-W (names tree)
+  "NAMES is a LIST of strings. TREE is a hash-table."
+  (LET ((relation (nth 0 names))
         (name nil)
         (degree -1)
-        (result nil))
+        (query nil))
 
-    (cond ((eql (list-length tokens) 2) (setq name (nth 1 tokens)))
-          ((eql (list-length tokens) 3) (setq name (nth 2 tokens) degree (parse-integer (nth 1 tokens))))
+    (cond ((eql (list-length names) 2) (setq name (nth 1 names)))
+          ((eql (list-length names) 3) (setq name (nth 2 names) degree (parse-integer (nth 1 names))))
           (t (error "HANDLE-W must be called with two or three parameters")))
 
     (when (not (person-exists name tree))
       (error "HANDLE-W: ~A does not exist in the tree" name))
 
-    ;;; Again, case doesn't work on strings...
-    (cond ((string= relation "ancestor") (setq result (get-ancestors name tree)))
-          ((string= relation "unrelated") (setq result (get-unrelated name tree)))
-          ((string= relation "child") (setq result (get-children name tree)))
-          ((string= relation "sibling") (setq result (get-siblings name tree)))
-          ((string= relation "cousin") (setq result (get-cousins name tree degree)))
-          (t (error "HANDLE-W: Invalid relation: ~A~%" relation)))
+    (case relation
+      ("ancestor" (setq query (get-ancestors name tree)))
+      ("unrelated" (setq query (get-unrelated name tree)))
+      ("child" (setq query (get-children name tree)))
+      ("sibling" (setq query (get-siblings name tree)))
+      ("cousin" (setq query (get-cousins name tree degree)))
+      (otherwise (error "Invalid relation: ~A" relation)))
 
-    (when result
-        (setq result (sort result #'string-lessp)))
+    (when query
+        (setq query (sort query #'string-lessp)))
 
-    result
+    (print query)
+
+    query
     ))
 
 
@@ -428,35 +432,21 @@ Returns NIL (false) otherwise."
 
 
 ;;;THE TOP LEVEL FUNCTION OF THE WHOLE PROGRAM
+;;NOTE: This function is complete.
 (DEFUN family (stream)
   "This is the top-level function for the whole Lisp program. Reads
 each line from the file opened in STREAM."
   (LET ((tree (MAKE-HASH-TABLE :size 1000 :test #'equal))
-        (line nil)
-        (tokens nil)
+        (line-items (SPLIT-SEQUENCE " " (READ-LINE stream nil "") :test #'equal))
         (result nil))
-
-    (loop for line = (read-line stream nil)
-          while line
-          do (setq tokens (split-sequence " " line :test #'equal))
-
-          ;;; Can't use CASE macro on strings apparently (probably uses eql)
-          ;;; so have to use a conditional instead
-          (cond ((string= (first tokens) "E")
-                 (handle-E (rest tokens) tree))
-                ((string= (first tokens) "W")
-                 (format t "~A~%" line)
-                 (setq result (handle-W (rest tokens) tree))
-                 (if result
-                     (format t "~A~%~%" result)
-                   (format t "None~%~%")))
-                ((string= (first tokens) "X")
-                 (format t "~A~%" line)
-                 (setq result (handle-X (rest tokens) tree))
-                 (if result
-                     (format t "Yes~%~%")
-                   (format t "No~%~%")))
-                (t (error "FAMILY: Invalid query type: ~A~%" (first tokens)))))
+    (LOOP
+     (CASE (FIRST line-items)
+       ("E" (handle-E (REST line-items) tree))
+       ("W" (handle-W (REST line-items) tree))
+       ("X" (handle-X (REST line-items) tree))
+       (t (RETURN nil))) ; end of file reached
+     (format t "~A~%" result)
+     (SETF line-items (SPLIT-SEQUENCE " " (READ-LINE stream nil "") :test #'equal)))
   )
 )
 
