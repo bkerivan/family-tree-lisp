@@ -194,7 +194,7 @@ Returns NIL (false) otherwise."
 (defun is-ancestor(ancestor name tree)
   (let ((ancestors (get-ancestors name tree)))
     ;;; Returns t if list is not empty; nil otherwise
-    (not (not (member ancestor ancestors :test #'string=))))) 
+    (not (not (member ancestor ancestors :test #'equal))))) 
 
 
 ;;; Checks if 'unrelated' is unrelated to 'name'.
@@ -202,10 +202,10 @@ Returns NIL (false) otherwise."
   (let ((ancestors1 (get-ancestors unrelated tree))
         (ancestors2 (get-ancestors name tree)))
     (not (or 
-          (member name ancestors1) 
-          (member unrelated ancestors2) 
+          (member name ancestors1 :test #'equal) 
+          (member unrelated ancestors2 :test #'equal) 
           (string= unrelated name)
-          (intersection ancestors1 ancestors2)))))
+          (intersection ancestors1 ancestors2 :test #'equal)))))
 
 
 ;;; Gets all family tree members that are unrelated to 'name'.
@@ -378,7 +378,8 @@ Returns NIL (false) otherwise."
         (p-ancestor-map (get-ancestor-map name tree))
         (c-ancestor-map nil)
         (common-ancestor-map nil)
-        (ancestor-degrees nil))
+        (ancestor-degrees nil)
+        (min-ancestor-degree nil))
 
     (when (< degree -1)
       (error "GET-COUSINS: DEGREE must be >= -1"))
@@ -400,7 +401,7 @@ Returns NIL (false) otherwise."
 
     (loop for cousin in all-cousins
           ;;; Same common ancestor might have different degrees for each cousin
-          do (setq common-ancestors (intersection (get-ancestors name tree) (get-ancestors cousin tree) :test 'string=))
+          do (setq common-ancestors (intersection (get-ancestors name tree) (get-ancestors cousin tree) :test #'equal))
 
           (setq c-ancestor-map (get-ancestor-map cousin tree))
 
@@ -418,8 +419,10 @@ Returns NIL (false) otherwise."
                 collect (gethash key common-ancestor-map) into l
                 finally (setq ancestor-degrees l))
 
+          (setq min-ancestor-degree (apply #'min ancestor-degrees))
+
           ;;; Degree of cousin is minimum degree across all common ancestors
-          when (eql (apply #'min ancestor-degrees) degree)
+          when (eql degree min-ancestor-degree)
             collect cousin)))
 
 
@@ -428,7 +431,7 @@ Returns NIL (false) otherwise."
 ;;; If degree is provided as an argument, checks for a matching degree of
 ;;; cousin as well.
 (defun is-cousin(cousin name tree &optional (degree -1))
-  (not (not (member cousin (get-cousins name tree degree)))))
+  (not (not (member cousin (get-cousins name tree degree) :test #'equal))))
 
 
 ;;;THE TOP LEVEL FUNCTION OF THE WHOLE PROGRAM
