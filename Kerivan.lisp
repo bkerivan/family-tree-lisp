@@ -307,7 +307,8 @@ Returns NIL (false) otherwise."
              (add-person tree (nth 1 names))))
           ((eql (list-length names) 3)
            (add-person tree (nth 2 names) (list (nth 0 names) (nth 1 names))))
-          (t (error "HANDLE-E must be called with two or three parameters")))
+          (t (format t "[DEBUG]: names = ~A~%" names)
+             (error "HANDLE-E must be called with two or three parameters")))
   ))
 
 
@@ -441,7 +442,11 @@ each line from the file opened in STREAM."
 
     (loop for line = (read-line stream nil)
           while line
-          do (setq tokens (split-sequence " " line :test #'equal))
+          ;;; Remove leading and trailing whitespace so proper number of
+          ;;; arguments is parsed
+          do (setq line (string-trim '(#\Space #\Tab #\Newline) line))
+
+          (setq tokens (split-sequence " " line :test #'equal))
 
           ;;; Can't use CASE macro on strings apparently (probably uses eql)
           ;;; so have to use a conditional instead
